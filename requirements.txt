@@ -1,0 +1,28 @@
+# Dependências do Backend - Projeto Karen
+# Framework web
+Flask==2.3.3
+Flask-Cors==4.0.0
+
+# Variáveis de ambiente
+python-dotenv==1.0.0
+
+# Firebase Admin SDK
+firebase-admin==6.2.0
+
+# Google APIs
+google-generativeai==0.3.2
+google-api-python-client==2.108.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+
+# ElevenLabs API
+elevenlabs==0.2.27
+
+# Utilitários para data/hora
+python-dateutil==2.8.2
+
+# Requests para HTTP
+requests==2.31.0
+
+# JSON handling
+jsonschema==4.19.2
