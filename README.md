@@ -6,8 +6,12 @@ Assistente pessoal inteligente com interação por voz, desenvolvida com React (
 
 - **Interação por Voz**: Reconhecimento de fala usando Web Speech API
 - **Interface Moderna**: Design responsivo com Tailwind CSS e tema escuro
-- **Backend Mockado**: Endpoint Flask simulando integração com Gemini e ElevenLabs
+- **Integração com IA**: Groq AI para processamento de linguagem natural
+- **Síntese de Voz**: ElevenLabs para respostas em áudio (configurável)
 - **Chat em Tempo Real**: Conversa fluida entre usuário e Karen
+- **Histórico Persistente**: Conversas salvas no Firebase Firestore
+- **Sistema de Memória**: Memória de longo prazo para personalização
+- **Gerenciamento de Tarefas**: Criação e organização de tarefas via comandos de voz
 
 ## 📋 Pré-requisitos
 
@@ -73,29 +77,52 @@ O frontend estará disponível em `http://localhost:3000`
 Para funcionalidade completa, configure as seguintes chaves no arquivo `.env`:
 
 ```env
-# Google API Key (Gemini + Google Calendar)
+# Google API Key (Google Calendar)
 GOOGLE_API_KEY=sua_chave_aqui
+
+# Groq API Key (Processamento de IA)
+GROQ_API_KEY=sua_chave_aqui
 
 # ElevenLabs API Key (Síntese de Voz)
 ELEVENLABS_API_KEY=sua_chave_aqui
 
 # Caminho para credenciais do Firebase
-FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json.json
+FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
 ```
 
 ### Como obter as chaves:
 
 1. **Google API Key**: [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. **ElevenLabs API Key**: [ElevenLabs Dashboard](https://elevenlabs.io/app/speech-synthesis)
-3. **Firebase Credentials**: [Firebase Console](https://console.firebase.google.com/) > Configurações do Projeto > Contas de Serviço
+2. **Groq API Key**: [Groq Console](https://console.groq.com/keys)
+3. **ElevenLabs API Key**: [ElevenLabs Dashboard](https://elevenlabs.io/app/settings/api-keys)
+4. **Firebase Credentials**: [Firebase Console](https://console.firebase.google.com/) > Configurações do Projeto > Contas de Serviço
 
 ## 📱 Como Usar
 
 1. Abra o navegador em `http://localhost:3000`
-2. Clique no botão do microfone (🎤)
-3. Permita o acesso ao microfone quando solicitado
-4. Fale com a Karen em português
-5. Veja a resposta aparecer no chat
+2. Faça login com: **teste@teste.com** / **123456**
+3. Clique no botão do microfone (🎤) ou digite sua mensagem
+4. Permita o acesso ao microfone quando solicitado
+5. Fale com a Karen em português
+6. Veja a resposta aparecer no chat e ouça o áudio (se configurado)
+
+## 🧠 Sistema de Memória
+
+A Karen possui um sistema de memória de longo prazo que:
+
+- **Lembra informações pessoais**: Nome, profissão, preferências
+- **Contextualiza conversas**: Usa informações anteriores para personalizar respostas
+- **Armazena projetos**: Mantém registro dos projetos em que você trabalha
+- **Adapta comunicação**: Ajusta o tom baseado nas suas preferências
+
+### Exemplos de uso:
+```
+"Oi Karen, me chamo João e sou desenvolvedor Python"
+"Estou trabalhando em um projeto de machine learning"
+"Prefiro explicações técnicas detalhadas"
+```
+
+A Karen lembrará dessas informações em conversas futuras!
 
 ## 🏗️ Estrutura do Projeto
 
@@ -112,14 +139,16 @@ Projeto Karen/
 ├── src/
 │   ├── main.jsx          # Ponto de entrada React
 │   ├── App.jsx           # Componente principal
-│   └── index.css         # Estilos globais
-└── firebase-credentials.json.json  # Credenciais Firebase
+│   ├── index.css         # Estilos globais
+│   ├── karen_prompt.txt  # Prompt da IA Karen
+│   └── karen_memory.txt  # Arquivo de memória de longo prazo
+└── firebase-credentials.json  # Credenciais Firebase
 ```
 
 ## 🔍 Endpoints da API
 
 ### POST `/api/interact`
-Recebe texto do usuário e retorna resposta mockada.
+Recebe texto do usuário e retorna resposta processada pela IA.
 
 **Request:**
 ```json
@@ -131,10 +160,16 @@ Recebe texto do usuário e retorna resposta mockada.
 **Response:**
 ```json
 {
-  "responseText": "Resposta do Gemini para: Crie uma tarefa para comprar pão",
-  "audioUrl": "placeholder_audio.mp3"
+  "responseText": "Tarefa 'comprar pão' criada com sucesso!",
+  "audioUrl": "data:audio/mpeg;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEA..."
 }
 ```
+
+### GET `/api/chat-history`
+Retorna o histórico de conversas do usuário.
+
+### POST `/api/clear-chat`
+Limpa o histórico de conversas do usuário.
 
 ### GET `/health`
 Verifica se o servidor está funcionando.
@@ -156,11 +191,18 @@ Verifica se o servidor está funcionando.
 
 ## 📝 Próximos Passos
 
-- [ ] Integração real com Google Gemini
-- [ ] Integração real com ElevenLabs
-- [ ] Conexão com Firebase/Firestore
-- [ ] Implementação de funcionalidades (Tarefas, Hábitos, etc.)
+- [x] ~~Integração com Groq AI~~
+- [x] ~~Integração com ElevenLabs~~
+- [x] ~~Conexão com Firebase/Firestore~~
+- [x] ~~Sistema de memória de longo prazo~~
+- [x] ~~Histórico de conversas~~
+- [ ] Implementação completa de Tarefas (CRUD)
+- [ ] Sistema de Hábitos
+- [ ] Integração com Google Calendar
+- [ ] Sistema de Finanças
 - [ ] Aplicação desktop com wake word
+- [ ] Notificações push
+- [ ] Backup automático da memória
 
 ## 📄 Licença
 

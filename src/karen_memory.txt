@@ -1,0 +1,38 @@
+# Karen - Memória de Longo Prazo
+# Este arquivo armazena informações importantes sobre o usuário para personalizar as interações
+# Formato: [DATA] CATEGORIA: Informação
+
+## Informações Pessoais
+# Nome, preferências, contexto pessoal
+
+## Projetos e Objetivos
+# Projetos em andamento, metas, deadlines importantes
+
+## Preferências de Comunicação
+# Como o usuário prefere ser tratado, tom de voz, etc.
+
+## Histórico de Interações Importantes
+# Decisões importantes, feedback, aprendizados
+
+## Contexto Profissional
+# Área de trabalho, responsabilidades, desafios
+
+---
+# Exemplo de entrada:
+# [2025-01-15] PESSOAL: Usuário prefere ser chamado de "João" e gosta de um tom mais informal
+# [2025-01-15] PROJETO: Trabalhando no desenvolvimento de um app mobile em React Native
+# [2025-01-15] PREFERÊNCIA: Prefere explicações técnicas detalhadas
+[2025-09-02 15:49] NOME: Olá Karen, me chamo João e sou desenvolvedor de software. Estou trabalhando em um projeto de IA e prefiro explicações técnicas detalhadas.
+[2025-09-02 15:49] PROJETO: Olá Karen, me chamo João e sou desenvolvedor de software. Estou trabalhando em um projeto de IA e prefiro explicações técnicas detalhadas.
+[2025-09-02 15:49] PREFERENCIA: Olá Karen, me chamo João e sou desenvolvedor de software. Estou trabalhando em um projeto de IA e prefiro explicações técnicas detalhadas.
+[2025-09-02 15:49] PROFISSIONAL: Olá Karen, me chamo João e sou desenvolvedor de software. Estou trabalhando em um projeto de IA e prefiro explicações técnicas detalhadas.
+[2025-09-02 15:49] ATIVIDADE: Criou task: {'what': 'desenvolver projeto de IA', 'name': 'projeto de IA', 'category': 'trabalho', 'priority': 'alta', 'description': 'desenvolver projeto de IA com explicações técnicas detalhadas', 'tags': ['projeto de IA', 'desenvolvimento de software']}
+[2025-09-02 16:16] NOME: Nome: Carlos, Profissão: Engenheiro de Software
+[2025-09-02 16:16] NOME: Oi Karen, me chamo Carlos e sou engenheiro de software. Estou desenvolvendo uma aplicação de machine learning e prefiro explicações técnicas bem detalhadas.
+[2025-09-02 16:16] PROJETO: Oi Karen, me chamo Carlos e sou engenheiro de software. Estou desenvolvendo uma aplicação de machine learning e prefiro explicações técnicas bem detalhadas.
+[2025-09-02 16:16] PREFERENCIA: Oi Karen, me chamo Carlos e sou engenheiro de software. Estou desenvolvendo uma aplicação de machine learning e prefiro explicações técnicas bem detalhadas.
+[2025-09-02 16:16] PROFISSIONAL: Oi Karen, me chamo Carlos e sou engenheiro de software. Estou desenvolvendo uma aplicação de machine learning e prefiro explicações técnicas bem detalhadas.
+[2025-09-02 16:17] NOME: Nome: João, Profissão: Desenvolvedor de Software
+[2025-09-02 16:19] NOME: Nome: João, Profissão: Desenvolvedor de Software
+[2025-09-02 16:22] INTERACAO: Interacao: Usuário não respondeu a pergunta de preferência de comunicação
+[2025-09-02 16:24] NOME: Nome: João, Profissão: Desenvolvedor de Software

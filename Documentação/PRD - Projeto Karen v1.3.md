@@ -1,185 +1,100 @@
-Documento de Requisitos de Produto (PRD): Projeto Caren
+Documento de Requisitos de Produto (PRD): Projeto Karen
 Autor: Caio
 
-Versão: 1.0
+Versão: 2.0 (Arquitetura Final)
 Data: 02 de Setembro de 2025
 
 1. Introdução
 1.1. Visão Geral
-Caren é uma assistente pessoal de inteligência artificial, projetada para ser uma central de organização e produtividade. Ativada por voz e acessível através de uma interface web e uma aplicação de desktop, Caren visa unificar o gerenciamento de tarefas, finanças, hábitos e ideias do usuário em um único ecossistema inteligente e sincronizado.
+Karen é uma assistente pessoal de IA, projetada para ser uma central de organização e produtividade. Com interação primária por uma interface de chat inteligente, Karen unifica o gerenciamento de tarefas, lembretes, finanças e ideias do usuário em um único ecossistema, com todos os dados sincronizados em tempo real.
 
 1.2. O Problema
-Atualmente, o gerenciamento de produtividade pessoal está fragmentado em múltiplos aplicativos: um para listas de tarefas, outro para hábitos, uma agenda para lembretes, um app para finanças e blocos de notas para ideias. Essa fragmentação cria atrito, dificulta a visão geral da própria vida e carece de uma interface unificada e natural, como a voz.
+O gerenciamento de produtividade pessoal está fragmentado. Karen resolve isso centralizando tudo em uma única interface, acessível e natural, eliminando a necessidade de múltiplos aplicativos.
 
 1.3. Objetivo
 Construir uma assistente pessoal centralizada, com as seguintes características:
 
-Nome: Caren
+Nome: Karen
 
-Interação Primária: Voz, com uma "palavra de ativação" (wake word).
+Interação Primária: Chat (texto e voz)
 
-Voz: Feminina, natural e em português do Brasil.
+Voz: Feminina, ultra-realista (ElevenLabs)
 
-Plataformas: Uma interface web para visualização de dados (acessível no celular e desktop) e uma aplicação desktop para controle do computador e escuta ativa.
+Plataforma Inicial: Aplicação Web (React) com design profissional.
 
-Cérebro de Dados: Utilizar o Google Firebase (Firestore) como banco de dados central, garantindo sincronização em tempo real.
+Cérebro de IA: Processamento de linguagem via API da Groq (Llama 3).
+
+Cérebro de Dados: Firebase (Firestore) como banco de dados central e Firebase Authentication para login.
 
 2. Funcionalidades Detalhadas
-O sistema será modular, com cada funcionalidade construída sobre uma base de interação por voz e armazenamento no Firebase.
-
 Módulo 1: Core - Interação e IA
-Wake Word: O sistema de desktop deve ouvir continuamente pela palavra de ativação "Caren" de forma eficiente e offline.
+Autenticação Segura: Login na aplicação web via Firebase Authentication (Google Sign-In).
 
-Reconhecimento de Fala: Após a ativação, o sistema deve transcrever o comando de voz do usuário para texto com alta precisão.
+Interface de Chat: A tela principal da aplicação será uma interface de chat para conversar com a Karen.
 
-Processamento de Linguagem Natural (LLM): O texto transcrito será enviado à API do Gemini para interpretar a intenção do usuário (ex: "criar tarefa", "registrar gasto").
+Processamento de Linguagem (LLM): O texto do usuário será enviado à API da Groq para interpretar a intenção e extrair dados em formato JSON, seguindo as regras do karen_prompt.txt.
 
-Síntese de Voz: A resposta gerada pela LLM será convertida em áudio usando a API Google Cloud Text-to-Speech, garantindo uma resposta natural e fluida.
+Síntese de Voz: A resposta da Karen será convertida em áudio usando a API da ElevenLabs.
 
-Módulo 2: Gestão de Produtividade
+Módulo 2: Gestão de Produtividade (Dados no Firestore)
 2.1. Tarefas:
 
-User Story: "Como usuário, quero gerenciar minhas listas de tarefas por voz para organizar meu dia sem precisar digitar."
+Criar, consultar e gerenciar listas de tarefas e seus itens através de comandos no chat.
 
-Requisitos:
+Os dados serão armazenados na coleção /users/{userId}/tasks no Firestore.
 
-Criar, renomear e deletar listas de tarefas (ex: "Trabalho", "Supermercado").
+2.2. Lembretes e Agenda (Sistema Interno):
 
-Adicionar e remover itens de uma lista.
+NÃO usará Google Calendar.
 
-Marcar tarefas como "concluídas" ou "pendentes".
+Criar, consultar e gerenciar lembretes e eventos através de comandos no chat.
 
-Consultar todas as tarefas de uma lista específica ou todas as tarefas pendentes.
+Os dados serão armazenados em uma nova coleção /users/{userId}/reminders no Firestore. A aplicação web terá uma view de "Agenda" para visualizar esses dados.
 
-2.2. Hábitos:
+Módulo 3: Organização Pessoal (Dados no Firestore)
+3.1. Projetos, Finanças, Diário e Brain Dump:
 
-User Story: "Como usuário, quero criar e acompanhar hábitos para construir uma rotina mais saudável e produtiva."
-
-Requisitos:
-
-Definir um novo hábito (ex: "Meditar", "Ler 10 páginas").
-
-Estabelecer uma frequência (diário, semanal, etc.).
-
-Registrar a conclusão de um hábito para o dia/período.
-
-Consultar o progresso e a frequência de um hábito.
-
-2.3. Lembretes e Agenda:
-
-User Story: "Como usuário, quero definir lembretes para compromissos e integrá-los à minha agenda principal."
-
-Requisitos:
-
-Criar lembretes para datas e horários específicos (ex: "me lembre de ligar para a pizzaria às 19h").
-
-Integração com Google Calendar: Os lembretes e eventos criados devem ser sincronizados (adicionados e consultados) na agenda Google do usuário.
-
-Módulo 3: Organização Pessoal
-3.1. Projetos:
-
-User Story: "Como usuário, quero agrupar tarefas relacionadas em projetos para organizar objetivos maiores."
-
-Requisitos:
-
-Criar uma entidade "Projeto".
-
-Associar listas de tarefas ou tarefas individuais a um projeto.
-
-Visualizar o progresso de um projeto (ex: "mostrar todas as tarefas do projeto 'Férias'").
-
-3.2. Finanças:
-
-User Story: "Como usuário, quero registrar meus gastos e receitas de forma simples e rápida, usando apenas a voz."
-
-Requisitos:
-
-Registrar uma nova despesa (valor e descrição).
-
-Registrar uma nova receita.
-
-Consultar o total de despesas ou receitas de um período (ex: "quanto gastei este mês?").
-
-3.3. Diário & Brain Dump:
-
-User Story: "Como usuário, quero um espaço para registrar pensamentos do dia e capturar ideias aleatórias sem esforço."
-
-Requisitos:
-
-Diário: Criar/adicionar conteúdo a uma nota específica para a data atual.
-
-Brain Dump: Manter uma única nota geral para adicionar ideias rápidas e não categorizadas.
+Todas estas funcionalidades serão implementadas com sistemas próprios dentro do Firestore, acessíveis via comandos no chat.
 
 3. Arquitetura e Tecnologias
-3.1. Aplicação Web (Frontend)
-Tecnologias: React, Tailwind CSS, SDK do Firebase para JavaScript, Web Speech API.
+Frontend: React com Tailwind CSS.
 
-3.2. Servidor (Backend)
-Objetivo: Orquestrar a lógica de negócio e a comunicação com as APIs externas.
+Backend: Python com Flask.
 
-Tecnologias:
+Banco de Dados: Firebase Firestore.
 
-Linguagem/Framework: Python com Flask.
+Autenticação: Firebase Authentication.
 
-Comunicação com APIs Externas:
+LLM (Cérebro): Groq API.
 
-IA (LLM): google-generativeai para a API do Google Gemini.
+Voz: ElevenLabs API.
 
-Voz (TTS): API da ElevenLabs para síntese de voz ultra-realista.
+4. Plano de Lançamento (Milestones)
+Versão 1 (Fundação Web):
 
-Agenda: google-api-python-client para a integração com o Google Calendar.
+[X] Configuração do ambiente e das chaves de API (Groq, ElevenLabs, Firebase).
 
-Comunicação com Banco de Dados: SDK Admin do Firebase para Python (firebase-admin).
+[ ] Implementação da tela de login com Firebase Auth.
 
-3.3. Banco de Dados
-Tecnologia: Google Firebase (Firestore).
+[ ] Construção da interface principal com menu lateral e a view de "Chat IA".
 
-Estratégia: Servirá como a fonte única da verdade para todas as funcionalidades criadas (Tarefas, Finanças, Hábitos, etc.), com exceção dos eventos de agenda, que serão espelhados no Google Calendar. Não utilizaremos a API do Google Tasks para garantir maior flexibilidade e controle.
+[ ] Backend funcional que recebe texto, processa com a Groq (lendo o karen_prompt.txt), gera áudio com a ElevenLabs e retorna.
 
-4. Plano de Lançamento (Milestones) - Foco Web
-(O plano de lançamento permanece o mesmo da v1.2)
+Versão 2 (Produtividade Essencial):
+
+[ ] Implementação completa da funcionalidade de Tarefas, com os dados salvos e lidos do Firestore.
+
+[ ] Implementação completa da funcionalidade de Agenda/Lembretes (sistema próprio no Firestore).
+
+[ ] Criação das views "Tarefas" e "Agenda" no frontend para visualizar os dados.
+
+Versão 3 (Organização Total):
+
+[ ] Implementação das demais funcionalidades (Finanças, Diário, etc.).
 
 5. Métricas de Sucesso
-(As métricas permanecem as mesmas da v1.0)
+O sistema processa um comando (do envio à resposta falada) em menos de 3 segundos.
 
-6. Configuração do Ambiente e Chaves de API
-Esta seção documenta as credenciais necessárias para o funcionamento do projeto. As chaves reais não devem ser armazenadas aqui, apenas os placeholders indicando onde elas serão usadas.
+Os dados aparecem na interface web em tempo real após serem criados via chat.
 
-6.1. Google Firebase (Firestore)
-Finalidade: Banco de dados principal da aplicação.
-
-Credencial: Arquivo de Conta de Serviço (.json).
-
-Como Obter: Gerado em "Configurações do Projeto" > "Contas de Serviço" no Console do Firebase.
-
-Uso no Código (Backend): O caminho para este arquivo será usado para inicializar o SDK Admin do Firebase.
-
-Placeholder: firebase-credentials.json
-
-6.2. Google Cloud Platform
-Finalidade: Fornecer acesso às APIs do Gemini e Google Calendar.
-
-Credencial: Chave de API (API Key).
-
-Como Obter: Gerada em "APIs e Serviços" > "Credenciais" no Google Cloud Console.
-
-APIs a serem ativadas:
-
-Generative Language API
-
-Google Calendar API
-
-Uso no Código (Backend): Esta chave será usada para autenticar as chamadas para as APIs do Google.
-
-Placeholder: AIzaSyCVUleGAs2B7iTgeDo3SVd-gb7qFP0PKiU
-
-6.3. ElevenLabs
-Finalidade: Síntese de voz (TTS) natural e de alta qualidade para as respostas da Karen.
-
-Credencial: Chave de API (API Key).
-
-Como Obter: Gerada na seção "Profile + API Key" no painel do site da ElevenLabs.
-
-Uso no Código (Backend): A chave será usada no cabeçalho das requisições para a API da ElevenLabs.
-
-Placeholder: sk_f7d819b4d9b35b6cedae1057afb657d2d99170cf4c0f814e
+O login é seguro e separa os dados de cada usuário.
