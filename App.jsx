@@ -98,18 +98,54 @@ function App() {
     }
   };
 
+  // Função para fazer chamadas seguras ao backend com Bearer Token
+  const makeSecureApiCall = async (endpoint, options = {}) => {
+    try {
+      // Verificar se o usuário está autenticado
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+      
+      // Obter o token de ID do usuário logado
+      const idToken = await user.getIdToken();
+      
+      const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+          ...options.headers
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Token de autorização inválido');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Erro na chamada à API:', error);
+      throw error;
+    }
+  };
+
   const loadChatHistory = async () => {
     if (!user) return;
     
     setIsLoadingHistory(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/chat-history?userId=${user.uid}`);
-      if (response.ok) {
-        const history = await response.json();
-        setMessages(history);
-      }
+      const response = await makeSecureApiCall('/api/chat-history');
+      const history = await response.json();
+      setMessages(history);
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
+      if (error.message.includes('Token de autorização inválido')) {
+        // Token expirado, usuário precisa fazer login novamente
+        handleLogout();
+      }
     } finally {
       setIsLoadingHistory(false);
     }
@@ -119,19 +155,17 @@ function App() {
     if (!user) return;
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/clear-chat`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user.uid })
+      await makeSecureApiCall('/api/clear-chat', {
+        method: 'DELETE'
       });
       
-      if (response.ok) {
-        setMessages([]);
-      }
+      setMessages([]);
     } catch (error) {
       console.error('Erro ao limpar histórico:', error);
+      if (error.message.includes('Token de autorização inválido')) {
+        // Token expirado, usuário precisa fazer login novamente
+        handleLogout();
+      }
     }
   };
 
@@ -164,38 +198,39 @@ function App() {
     setIsSending(true);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/interact`, {
+      const response = await makeSecureApiCall('/api/interact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
-          message: userMessage.text,
-          userId: user.uid
+          message: userMessage.text
         })
       });
 
-      if (response.ok) {
-        // O backend retorna o áudio diretamente
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        
-        // Reproduzir o áudio
-        if (audioRef.current) {
-          audioRef.current.src = audioUrl;
-          audioRef.current.play().catch(console.error);
-        }
-        
-        // Recarregar histórico para obter a resposta da Karen
-        await loadChatHistory();
-      } else {
-        throw new Error('Erro na resposta do servidor');
+      // O backend retorna o áudio diretamente
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Reproduzir o áudio
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play().catch(console.error);
       }
+      
+      // Recarregar histórico para obter a resposta da Karen
+      await loadChatHistory();
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
+      let errorText = 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.';
+      
+      if (error.message.includes('não autenticado')) {
+        errorText = 'Você precisa estar logado para enviar mensagens.';
+      } else if (error.message.includes('Token de autorização inválido')) {
+        errorText = 'Sua sessão expirou. Por favor, faça login novamente.';
+        handleLogout();
+      }
+      
       const errorMessage = {
         id: Date.now() + 1,
-        text: 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.',
+        text: errorText,
         sender: 'karen',
         timestamp: new Date().toISOString()
       };

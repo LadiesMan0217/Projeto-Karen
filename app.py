@@ -7,8 +7,9 @@ import base64
 import requests
 from dotenv import load_dotenv
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, auth
 from groq import Groq
+from functools import wraps
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -29,6 +30,34 @@ KAREN_MEMORY_PATH = 'karen_memory.txt'
 # Inicialização dos serviços
 db = None
 groq_client = None
+
+def verify_firebase_token(f):
+    """Decorator para verificar Bearer Token do Firebase"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            # Extrair o token do cabeçalho Authorization
+            auth_header = request.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith('Bearer '):
+                return jsonify({'error': 'Token de autorização necessário'}), 401
+            
+            # Extrair o token (remover 'Bearer ')
+            id_token = auth_header.split('Bearer ')[1]
+            
+            # Verificar o token com Firebase Admin
+            decoded_token = auth.verify_id_token(id_token)
+            uid = decoded_token['uid']
+            
+            # Adicionar o uid ao request para uso na função
+            request.uid = uid
+            
+            return f(*args, **kwargs)
+            
+        except Exception as e:
+            print(f"(ERROR) Erro na verificação do token: {e}")
+            return jsonify({'error': 'Token inválido'}), 401
+    
+    return decorated_function
 
 def initialize_services():
     """Inicializa todos os serviços externos"""
@@ -203,12 +232,13 @@ def process_with_groq(user_message, system_prompt):
         return None
 
 @app.route('/api/interact', methods=['POST'])
+@verify_firebase_token
 def interact():
     """Endpoint principal para interação com a Karen"""
     try:
         data = request.get_json()
         user_message = data.get('message', '')
-        user_id = data.get('userId', 'anonymous')
+        user_id = request.uid  # Usar o uid verificado do token Firebase
         
         if not user_message:
             return jsonify({'error': 'Mensagem não fornecida'}), 400
@@ -252,10 +282,11 @@ def interact():
         return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/chat-history', methods=['GET'])
+@verify_firebase_token
 def get_chat_history():
     """Busca o histórico de chat do Firestore"""
     try:
-        user_id = request.args.get('userId', 'anonymous')
+        user_id = request.uid  # Usar o uid verificado do token Firebase
         
         if not db:
             return jsonify({'error': 'Firebase não inicializado'}), 500
@@ -282,10 +313,11 @@ def get_chat_history():
         return jsonify({'error': 'Erro ao buscar histórico'}), 500
 
 @app.route('/api/clear-chat', methods=['DELETE'])
+@verify_firebase_token
 def clear_chat():
     """Apaga o histórico de chat do Firestore"""
     try:
-        user_id = request.args.get('userId', 'anonymous')
+        user_id = request.uid  # Usar o uid verificado do token Firebase
         
         if not db:
             return jsonify({'error': 'Firebase não inicializado'}), 500
