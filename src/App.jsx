@@ -220,6 +220,8 @@ function LoginScreen({ onGoogleLogin, onEmailLogin, onEmailSignUp, isLoading }) 
 
 // Componente do Menu Lateral
 function SideMenu({ activeSection, onSectionChange, user, onLogout }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
   const menuItems = [
     { id: 'chat', label: 'Chat IA', icon: '💬', enabled: true },
     { id: 'tasks', label: 'Tarefas', icon: '✓', enabled: true },
@@ -228,64 +230,96 @@ function SideMenu({ activeSection, onSectionChange, user, onLogout }) {
     { id: 'finances', label: 'Finanças', icon: '💰', enabled: false },
   ];
 
+  const handleMenuItemClick = (itemId) => {
+    onSectionChange(itemId);
+    setIsMenuOpen(false); // Fechar menu no mobile após seleção
+  };
+
   return (
-    <div className="w-64 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 h-full flex flex-col">
-      {/* Header do Menu */}
-      <div className="p-6 border-b border-gray-700/50">
-        <h2 className="text-2xl font-bold text-white">Karen</h2>
-        <p className="text-gray-400 text-sm mt-1">Assistente Pessoal</p>
-      </div>
-
-      {/* Itens do Menu */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {menuItems.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => item.enabled && onSectionChange(item.id)}
-                disabled={!item.enabled}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center space-x-3 ${
-                  activeSection === item.id
-                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                    : item.enabled
-                    ? 'text-gray-300 hover:bg-gray-800/50 hover:text-white'
-                    : 'text-gray-600 cursor-not-allowed'
-                }`}
-              >
-                <span className="text-lg">{item.icon}</span>
-                <span className="font-medium">{item.label}</span>
-                {!item.enabled && <span className="text-xs text-gray-500 ml-auto">Em breve</span>}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Perfil do Usuário */}
-      <div className="p-4 border-t border-gray-700/50">
-        <div className="flex items-center space-x-3 mb-3">
-          <img
-            src={user?.photoURL || 'https://via.placeholder.com/40'}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">
-              {user?.displayName || 'Usuário'}
-            </p>
-            <p className="text-gray-400 text-xs truncate">
-              {user?.email || 'email@exemplo.com'}
-            </p>
-          </div>
-        </div>
+    <>
+      {/* Botão do Menu Mobile */}
+      <div className="lg:hidden bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 p-4 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-white">Karen</h2>
         <button
-          onClick={onLogout}
-          className="w-full text-gray-400 hover:text-white text-sm py-2 px-3 rounded-lg hover:bg-gray-800/50 transition-colors"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="text-white p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
         >
-          Sair
+          <span className="text-xl">{isMenuOpen ? '✕' : '☰'}</span>
         </button>
       </div>
-    </div>
+
+      {/* Overlay para Mobile */}
+      {isMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+
+      {/* Menu Lateral */}
+      <div className={`
+        fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto
+        w-64 bg-gray-900/95 backdrop-blur-xl border-r border-gray-800/80 
+        flex flex-col transform transition-transform duration-300 ease-in-out
+        ${isMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Header do Menu */}
+        <div className="p-4 sm:p-6 border-b border-gray-800/80">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Karen</h2>
+          <p className="text-gray-400 text-xs sm:text-sm mt-1">Assistente Pessoal</p>
+        </div>
+
+        {/* Itens do Menu */}
+        <nav className="flex-1 p-3 sm:p-4">
+          <ul className="space-y-1 sm:space-y-2">
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  onClick={() => item.enabled && handleMenuItemClick(item.id)}
+                  disabled={!item.enabled}
+                  className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 flex items-center space-x-2 sm:space-x-3 ${
+                    activeSection === item.id
+                      ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 shadow-lg'
+                      : item.enabled
+                      ? 'text-gray-300 hover:bg-gray-800/80 hover:text-white hover:border-gray-700/50 border border-transparent'
+                      : 'text-gray-600 cursor-not-allowed border border-transparent'
+                  }`}
+                >
+                  <span className="text-base sm:text-lg flex-shrink-0">{item.icon}</span>
+                  <span className="font-medium text-sm sm:text-base truncate">{item.label}</span>
+                  {!item.enabled && <span className="text-xs text-gray-500 ml-auto flex-shrink-0">Em breve</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Perfil do Usuário */}
+        <div className="p-3 sm:p-4 border-t border-gray-800/80">
+          <div className="flex items-center space-x-2 sm:space-x-3 mb-3">
+            <img
+              src={user?.photoURL || 'https://via.placeholder.com/40'}
+              alt="Avatar"
+              className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border-2 border-gray-700/50"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-xs sm:text-sm font-medium truncate">
+                {user?.displayName || 'Usuário'}
+              </p>
+              <p className="text-gray-400 text-xs truncate">
+                {user?.email || 'email@exemplo.com'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onLogout}
+            className="w-full text-gray-400 hover:text-white text-xs sm:text-sm py-2 px-3 rounded-lg hover:bg-gray-800/80 transition-colors border border-transparent hover:border-gray-700/50"
+          >
+            Sair
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1247,16 +1281,17 @@ function ChatView({ user }) {
     ];
     
     // Padrões para exclamações
-    const exclamationPatterns = [
-      /\b(nossa|uau|caramba|incrível|incrivel|ótimo|otimo|excelente|perfeito|obrigado|obrigada|parabéns|parabens)\b/,
-      /^(que|como)\b.*\b(legal|bom|ruim|terrível|terrivel|maravilhoso)\b/
-    ];
+     const exclamationPatterns = [
+       /\b(nossa|uau|caramba|incrível|incrivel|ótimo|otimo|excelente|perfeito|obrigado|obrigada|parabéns|parabens|maravilhoso|fantástico|fantastico|demais)\b/,
+       /^(que|como)\b.*\b(legal|bom|ruim|terrível|terrivel|maravilhoso|incrível|incrivel|ótimo|otimo)\b/,
+       /\b(você|voce)\s+(é|e)\s+(ótimo|otimo|incrível|incrivel|perfeito|maravilhoso|fantástico|fantastico)\b/
+     ];
     
-    // Verificar se é uma pergunta
-    const isQuestion = questionPatterns.some(pattern => pattern.test(lowerText));
-    
-    // Verificar se é uma exclamação
-    const isExclamation = exclamationPatterns.some(pattern => pattern.test(lowerText));
+    // Verificar se é uma exclamação (prioridade sobre pergunta)
+     const isExclamation = exclamationPatterns.some(pattern => pattern.test(lowerText));
+     
+     // Verificar se é uma pergunta (apenas se não for exclamação)
+     const isQuestion = !isExclamation && questionPatterns.some(pattern => pattern.test(lowerText));
     
     // Adicionar vírgulas em padrões comuns
     processedText = processedText
@@ -1416,16 +1451,62 @@ function ChatView({ user }) {
       if (data.audioUrl && voiceEnabled) {
         console.log('🎵 [DEBUG] Tentando reproduzir áudio...');
         try {
-          const audio = new Audio(data.audioUrl);
-          
-          audio.onloadstart = () => console.log('🎵 [DEBUG] Áudio: loadstart');
-          audio.oncanplay = () => console.log('🎵 [DEBUG] Áudio: canplay');
-          audio.onplay = () => console.log('🎵 [DEBUG] Áudio: play iniciado');
-          audio.onended = () => console.log('🎵 [DEBUG] Áudio: reprodução finalizada');
-          audio.onerror = (e) => console.error('❌ [DEBUG] Erro no áudio:', e);
-          
-          await audio.play();
-          console.log('✅ [DEBUG] Áudio reproduzido com sucesso');
+          // Verificar se é um fallback para Web Speech API
+          if (data.audioUrl.startsWith('web-speech:')) {
+            const textToSpeak = data.audioUrl.replace('web-speech:', '');
+            console.log('🎤 [DEBUG] Usando Web Speech API para:', textToSpeak.substring(0, 50) + '...');
+            
+            // Usar Web Speech API
+            if ('speechSynthesis' in window) {
+              const utterance = new SpeechSynthesisUtterance(textToSpeak);
+              utterance.lang = 'pt-BR';
+              utterance.rate = 0.9;
+              utterance.pitch = 1.1;
+              
+              // Tentar encontrar uma voz feminina em português
+              const voices = speechSynthesis.getVoices();
+              const femaleVoice = voices.find(voice => 
+                voice.lang.includes('pt') && 
+                (voice.name.toLowerCase().includes('female') || 
+                 voice.name.toLowerCase().includes('feminina') ||
+                 voice.name.toLowerCase().includes('maria') ||
+                 voice.name.toLowerCase().includes('luciana'))
+              );
+              
+              if (femaleVoice) {
+                utterance.voice = femaleVoice;
+                console.log('🎤 [DEBUG] Usando voz:', femaleVoice.name);
+              } else {
+                // Usar a primeira voz em português disponível
+                const ptVoice = voices.find(voice => voice.lang.includes('pt'));
+                if (ptVoice) {
+                  utterance.voice = ptVoice;
+                  console.log('🎤 [DEBUG] Usando voz PT:', ptVoice.name);
+                }
+              }
+              
+              utterance.onstart = () => console.log('🎤 [DEBUG] Web Speech: reprodução iniciada');
+              utterance.onend = () => console.log('🎤 [DEBUG] Web Speech: reprodução finalizada');
+              utterance.onerror = (e) => console.error('🎤 [ERROR] Web Speech erro:', e);
+              
+              speechSynthesis.speak(utterance);
+              console.log('🎤 [DEBUG] Web Speech iniciado com sucesso');
+            } else {
+              console.error('🎤 [ERROR] Web Speech API não suportada neste navegador');
+            }
+          } else {
+            // Áudio tradicional (ElevenLabs)
+            const audio = new Audio(data.audioUrl);
+            
+            audio.onloadstart = () => console.log('🎵 [DEBUG] Áudio: loadstart');
+            audio.oncanplay = () => console.log('🎵 [DEBUG] Áudio: canplay');
+            audio.onplay = () => console.log('🎵 [DEBUG] Áudio: play iniciado');
+            audio.onended = () => console.log('🎵 [DEBUG] Áudio: reprodução finalizada');
+            audio.onerror = (e) => console.error('❌ [DEBUG] Erro no áudio:', e);
+            
+            await audio.play();
+            console.log('✅ [DEBUG] Áudio reproduzido com sucesso');
+          }
         } catch (error) {
           console.error('❌ [DEBUG] Erro ao reproduzir áudio:', error);
         }
@@ -1475,44 +1556,44 @@ function ChatView({ user }) {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-black">
       {/* Cabeçalho do Chat com Toggle de Voz e Limpar Histórico */}
-      <div className="border-b border-gray-700/50 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="text-2xl">💬</div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Chat com Karen</h2>
-              <p className="text-sm text-gray-400">
+      <div className="border-b border-gray-800/80 p-3 sm:p-4 bg-gray-900/95 backdrop-blur-xl">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+            <div className="text-xl sm:text-2xl flex-shrink-0">💬</div>
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-white truncate">Chat com Karen</h2>
+              <p className="text-xs sm:text-sm text-gray-400 truncate">
                 {isLoadingHistory ? 'Carregando histórico...' : 'Assistente IA Inteligente'}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
             {/* Botão Limpar Histórico */}
             <button
               onClick={clearChatHistory}
-              className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 bg-red-600/20 border border-red-500/30 text-red-400 hover:bg-red-600/30"
+              className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg transition-all duration-200 bg-red-600/30 border border-red-500/40 text-red-300 hover:bg-red-600/40 hover:border-red-400/60"
               title="Limpar histórico de chat"
               disabled={messages.length === 0}
             >
-              <span className="text-lg">🗑️</span>
-              <span className="text-sm font-medium hidden sm:inline">Limpar</span>
+              <span className="text-sm sm:text-lg">🗑️</span>
+              <span className="text-xs sm:text-sm font-medium hidden md:inline">Limpar</span>
             </button>
             
             {/* Botão Toggle de Voz */}
             <button
               onClick={() => setVoiceEnabled(!voiceEnabled)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-lg transition-all duration-200 ${
                 voiceEnabled
-                  ? 'bg-green-600/20 border border-green-500/30 text-green-400 hover:bg-green-600/30'
-                  : 'bg-gray-800/50 border border-gray-700/50 text-gray-400 hover:bg-gray-700/50'
+                  ? 'bg-green-600/30 border border-green-500/40 text-green-300 hover:bg-green-600/40 hover:border-green-400/60'
+                  : 'bg-gray-800/80 border border-gray-700/80 text-gray-300 hover:bg-gray-700/80 hover:border-gray-600/80'
               }`}
               title={voiceEnabled ? 'Desativar respostas por voz' : 'Ativar respostas por voz'}
             >
-              <span className="text-lg">{voiceEnabled ? '🔊' : '🔇'}</span>
-              <span className="text-sm font-medium hidden sm:inline">
+              <span className="text-sm sm:text-lg">{voiceEnabled ? '🔊' : '🔇'}</span>
+              <span className="text-xs sm:text-sm font-medium hidden md:inline">
                 {voiceEnabled ? 'Voz Ativa' : 'Voz Inativa'}
               </span>
             </button>
@@ -1521,28 +1602,30 @@ function ChatView({ user }) {
       </div>
       
       {/* Área de Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4 bg-black">
         {messages.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">💬</div>
-            <h3 className="text-xl font-semibold text-white mb-2">Olá! Eu sou a Karen</h3>
-            <p className="text-gray-400">Como posso ajudar você hoje? Digite uma mensagem ou use o microfone.</p>
+          <div className="text-center py-8 sm:py-12 px-4">
+            <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">💬</div>
+            <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">Olá! Eu sou a Karen</h3>
+            <p className="text-sm sm:text-base text-gray-400 max-w-md mx-auto leading-relaxed">
+              Como posso ajudar você hoje? Digite uma mensagem ou use o microfone.
+            </p>
           </div>
         ) : (
           messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} px-1 sm:px-0`}
             >
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+                className={`max-w-[85%] sm:max-w-xs lg:max-w-md xl:max-w-lg px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-lg ${
                   message.sender === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 text-white'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white border border-blue-500/30'
+                    : 'bg-gradient-to-r from-gray-900 to-gray-800 backdrop-blur-sm border border-gray-700/80 text-gray-100'
                 }`}
               >
-                <p className="text-sm">{message.text}</p>
-                <p className="text-xs opacity-70 mt-1">
+                <p className="text-sm sm:text-base leading-relaxed break-words">{message.text}</p>
+                <p className="text-xs opacity-70 mt-1 sm:mt-2">
                   {message.timestamp.toLocaleTimeString('pt-BR', { 
                     hour: '2-digit', 
                     minute: '2-digit' 
@@ -1555,12 +1638,12 @@ function ChatView({ user }) {
         
         {/* Indicador de digitação */}
         {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 text-white px-4 py-2 rounded-2xl">
+          <div className="flex justify-start px-1 sm:px-0">
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 backdrop-blur-sm border border-gray-700/80 text-gray-100 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-lg">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
               </div>
               <p className="text-xs opacity-70 mt-1">Karen está digitando...</p>
             </div>
@@ -1569,41 +1652,43 @@ function ChatView({ user }) {
       </div>
       
       {/* Área de Input */}
-      <div className="border-t border-gray-700/50 p-4">
-        <div className="flex space-x-3">
+      <div className="border-t border-gray-800/80 p-3 sm:p-4 bg-gray-900/95 backdrop-blur-xl">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 max-w-4xl mx-auto">
           <div className="flex-1 relative">
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Digite sua mensagem..."
-              className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full bg-black/80 backdrop-blur-sm border border-gray-700/80 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 resize-none transition-all duration-200"
               rows="1"
-              style={{ minHeight: '48px', maxHeight: '120px' }}
+              style={{ minHeight: '44px', maxHeight: '120px' }}
             />
           </div>
           
-          {/* Botão de Voz */}
-          <button
-            onClick={toggleVoiceRecognition}
-            className={`px-4 py-3 rounded-xl transition-all duration-200 ${
-              isListening
-                ? 'bg-red-600 hover:bg-red-700 text-white'
-                : 'bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 text-gray-300 hover:text-white hover:bg-gray-700/50'
-            }`}
-            title={isListening ? 'Parar gravação' : 'Iniciar gravação de voz'}
-          >
-            {isListening ? '🔴' : '🎤'}
-          </button>
-          
-          {/* Botão de Enviar */}
-          <button
-            onClick={() => handleSendMessage()}
-            disabled={!inputText.trim()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-xl transition-colors"
-          >
-            Enviar
-          </button>
+          <div className="flex space-x-2 sm:space-x-3 justify-end sm:justify-start">
+            {/* Botão de Voz */}
+            <button
+              onClick={toggleVoiceRecognition}
+              className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl transition-all duration-200 flex-shrink-0 ${
+                isListening
+                  ? 'bg-red-600/90 hover:bg-red-600 text-white border border-red-500/60'
+                  : 'bg-black/80 backdrop-blur-sm border border-gray-700/80 text-gray-300 hover:text-white hover:bg-gray-800/80 hover:border-gray-600/80'
+              }`}
+              title={isListening ? 'Parar gravação' : 'Iniciar gravação de voz'}
+            >
+              <span className="text-sm sm:text-base">{isListening ? '🔴' : '🎤'}</span>
+            </button>
+            
+            {/* Botão de Enviar */}
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={!inputText.trim()}
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 font-medium border border-blue-500/30 disabled:border-gray-600/30 flex-shrink-0"
+            >
+              <span className="text-sm sm:text-base">Enviar</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1709,7 +1794,7 @@ function App() {
 
   // Interface principal
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex">
+    <div className="min-h-screen bg-black flex flex-col lg:flex-row">
       {/* Menu Lateral */}
       <SideMenu
         activeSection={activeSection}
@@ -1719,10 +1804,10 @@ function App() {
       />
 
       {/* Área de Conteúdo Principal */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <header className="bg-gray-900/30 backdrop-blur-xl border-b border-gray-700/50 p-6">
-          <h1 className="text-2xl font-bold text-white">
+        <header className="bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/80 p-4 sm:p-6 flex-shrink-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-white truncate">
             {activeSection === 'chat' ? 'Chat IA' :
              activeSection === 'tasks' ? 'Tarefas' :
              activeSection === 'reminders' ? 'Agenda' :
@@ -1732,12 +1817,12 @@ function App() {
         </header>
 
         {/* Conteúdo */}
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden bg-black">
           {activeSection === 'chat' && (
             <ChatView user={user} />
           )}
           {activeSection !== 'chat' && (
-            <div className="p-6 overflow-y-auto h-full">
+            <div className="p-4 sm:p-6 overflow-y-auto h-full bg-black">
               <div className="max-w-4xl mx-auto">
                 {activeSection === 'tasks' && (
                   <TaskList tasks={tasks} isLoading={isLoadingTasks} />
@@ -1745,10 +1830,10 @@ function App() {
                 {activeSection === 'reminders' && <RemindersList user={user} />}
                 {activeSection === 'projects' && <ProjectsList user={user} />}
                 {activeSection === 'finances' && (
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-4">💰</div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Finanças</h3>
-                    <p className="text-gray-400">Em desenvolvimento</p>
+                  <div className="text-center py-8 sm:py-12">
+                    <div className="text-4xl sm:text-6xl mb-4">💰</div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">Finanças</h3>
+                    <p className="text-sm sm:text-base text-gray-400">Em desenvolvimento</p>
                   </div>
                 )}
               </div>
@@ -1756,8 +1841,6 @@ function App() {
           )}
         </main>
       </div>
-
-
     </div>
   );
 }
