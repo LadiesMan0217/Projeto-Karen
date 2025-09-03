@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { signInWithGoogle, signInWithEmail, signUpWithEmail, signOutUser, onAuthStateChange, listenToTasks } from './firebase.js';
 
+// Configuração da URL base do backend
+const API_BASE_URL = 'https://karen-backend-fhs4.onrender.com';
+
 // Componente de Login
 function LoginScreen({ onGoogleLogin, onEmailLogin, onEmailSignUp, isLoading }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -408,7 +411,7 @@ function ProjectsList({ user }) {
   const loadProjects = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/projects?userId=${user.uid}&status=${filterStatus}&sortBy=${sortBy}`);
+      const response = await fetch(`${API_BASE_URL}/api/projects?userId=${user.uid}&status=${filterStatus}&sortBy=${sortBy}`);
       const data = await response.json();
       
       if (response.ok) {
@@ -426,7 +429,7 @@ function ProjectsList({ user }) {
   // Criar projeto
   const createProject = async (projectData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/projects', {
+      const response = await fetch(`${API_BASE_URL}/api/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -453,7 +456,7 @@ function ProjectsList({ user }) {
   // Atualizar projeto
   const updateProject = async (projectId, updates) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/projects/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -479,7 +482,7 @@ function ProjectsList({ user }) {
     if (!confirm('Tem certeza que deseja deletar este projeto?')) return;
     
     try {
-      const response = await fetch(`http://localhost:5000/api/projects/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, {
         method: 'DELETE',
       });
       
@@ -950,7 +953,7 @@ function RemindersList({ user }) {
   const loadReminders = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/reminders?userId=${user.uid}`);
+      const response = await fetch(`${API_BASE_URL}/api/reminders?userId=${user.uid}`);
       const data = await response.json();
       
       if (response.ok) {
@@ -1356,7 +1359,7 @@ function ChatView({ user }) {
   const loadChatHistory = async () => {
     try {
       setIsLoadingHistory(true);
-      const response = await fetch(`http://localhost:5000/api/chat/history?userId=${user?.uid || 'anonymous'}&limit=50`);
+      const response = await fetch(`${API_BASE_URL}/api/chat-history?userId=${user?.uid || 'anonymous'}&limit=50`);
       const data = await response.json();
       
       if (data.messages) {
@@ -1383,7 +1386,7 @@ function ChatView({ user }) {
     }
     
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/history?userId=${user?.uid || 'anonymous'}`, {
+      const response = await fetch(`${API_BASE_URL}/api/chat-history?userId=${user?.uid || 'anonymous'}`, {
         method: 'DELETE'
       });
       
@@ -1418,7 +1421,7 @@ function ChatView({ user }) {
     setIsTyping(true);
     
     try {
-      const response = await fetch('http://localhost:5000/api/interact', {
+      const response = await fetch(`${API_BASE_URL}/api/interact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
