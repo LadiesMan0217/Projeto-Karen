@@ -97,16 +97,19 @@ def initialize_services():
         # Inicializar Groq AI
         if GROQ_API_KEY:
             try:
+                # Tentar inicialização padrão
                 groq_client = Groq(api_key=GROQ_API_KEY)
-                print("(OK) Groq AI inicializado com sucesso")
+                # Testar se o cliente funciona fazendo uma chamada simples
+                test_response = groq_client.chat.completions.create(
+                    messages=[{"role": "user", "content": "test"}],
+                    model="llama3-8b-8192",
+                    max_tokens=1
+                )
+                print("(OK) Groq AI inicializado e testado com sucesso")
             except Exception as groq_error:
-                # Erro conhecido com argumento 'proxies' - usar fallback silencioso
-                if "proxies" in str(groq_error):
-                    print("(WARNING) Groq inicializado com limitações (modo compatibilidade)")
-                    groq_client = None  # Usar simulação de resposta
-                else:
-                    print(f"(ERROR) Erro ao inicializar Groq: {groq_error}")
-                    groq_client = None
+                print(f"(WARNING) Erro ao inicializar Groq: {groq_error}")
+                print("(INFO) Continuando com simulação de resposta")
+                groq_client = None
         else:
             print("(WARNING) Groq API Key não encontrada")
             groq_client = None
@@ -269,12 +272,34 @@ def process_with_groq(user_message, system_prompt):
         print(f"(ERROR) Erro ao processar com Groq: {str(e)}")
         return None
 
-@app.route('/api/interact', methods=['POST'])
+@app.route('/api/interact', methods=['POST', 'OPTIONS'])
 @verify_firebase_token
 def interact():
     """Endpoint principal para interação com a Karen"""
+    
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     try:
-        data = request.get_json()
+        # Obter dados com encoding correto
+        raw_data = request.get_data()
+        
+        try:
+            # Tentar decodificar como UTF-8
+            raw_text = raw_data.decode('utf-8')
+        except UnicodeDecodeError:
+            # Fallback para latin-1
+            raw_text = raw_data.decode('latin-1')
+        
+        # Fazer parse do JSON
+        try:
+            import json
+            data = json.loads(raw_text)
+        except json.JSONDecodeError as json_error:
+            print(f"(ERROR) JSON parse error: {json_error}")
+            return jsonify({'error': f'JSON inválido: {str(json_error)}'}), 400
+        
         user_message = data.get('message', '')
         user_id = request.uid  # Usar o uid verificado do token Firebase
         
@@ -398,6 +423,8 @@ def health_check():
             'huggingface': HF_TOKEN is not None
         }
     })
+
+# Endpoint de teste removido - funcionalidade integrada ao endpoint principal
 
 # Inicializa os serviços sempre (tanto para desenvolvimento quanto produção)
 print("[DEBUG] Iniciando aplicação Flask...")
