@@ -94,30 +94,42 @@ def initialize_services():
         db = firestore.client()
         print("(OK) Firebase inicializado com sucesso")
         
-        # Inicializar Groq AI
+        # Inicializar Groq AI com abordagem simplificada
         if GROQ_API_KEY:
             try:
-                # Inicialização mais robusta do Groq
-                import groq
-                groq_client = groq.Groq(api_key=GROQ_API_KEY)
+                print("(INFO) Tentando importar módulo groq...")
+                from groq import Groq
+                print("(INFO) Módulo groq importado com sucesso")
                 
-                # Testar conectividade com timeout
+                print("(INFO) Criando cliente Groq com apenas api_key...")
+                # Inicialização minimalista - apenas com api_key
+                groq_client = Groq(api_key=GROQ_API_KEY)
+                print("(INFO) Cliente Groq criado com sucesso")
+                
+                print("(INFO) Testando conectividade com Groq...")
+                # Teste simples sem timeout
                 test_response = groq_client.chat.completions.create(
-                    messages=[{"role": "user", "content": "Hi"}],
+                    messages=[{"role": "user", "content": "test"}],
                     model="llama3-8b-8192",
-                    max_tokens=5,
-                    timeout=10
+                    max_tokens=1
                 )
+                
                 if test_response and test_response.choices:
                     print("(OK) Groq AI inicializado e testado com sucesso")
                 else:
-                    raise Exception("Teste de conectividade falhou")
+                    print("(WARNING) Teste de conectividade retornou resposta vazia")
+                    groq_client = None
                     
             except ImportError as import_error:
                 print(f"(ERROR) Erro ao importar Groq: {import_error}")
                 groq_client = None
+            except TypeError as type_error:
+                print(f"(ERROR) Erro de tipo na inicialização do Groq: {type_error}")
+                print(f"(DEBUG) Detalhes do erro: {str(type_error)}")
+                groq_client = None
             except Exception as groq_error:
-                print(f"(WARNING) Erro ao inicializar Groq: {groq_error}")
+                print(f"(WARNING) Erro geral ao inicializar Groq: {groq_error}")
+                print(f"(DEBUG) Tipo do erro: {type(groq_error).__name__}")
                 print("(INFO) Continuando com simulação de resposta")
                 groq_client = None
         else:
