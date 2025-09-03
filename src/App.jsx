@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { signInWithGoogle, signInWithEmail, signUpWithEmail, signOutUser, onAuthStateChange, listenToTasks } from './firebase.js';
+import { signInWithGoogle, signInWithEmail, signUpWithEmail, signOutUser, onAuthStateChange, listenToTasks, getCurrentUserToken } from './firebase.js';
 
 // Configuração da URL base do backend
-const API_BASE_URL = 'https://karen-backend-fhs4.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://karen-backend-fhs4.onrender.com';
 
 // Componente de Login
 function LoginScreen({ onGoogleLogin, onEmailLogin, onEmailSignUp, isLoading }) {
@@ -1421,11 +1421,21 @@ function ChatView({ user }) {
     setIsTyping(true);
     
     try {
+      // Obter token de autenticação
+      const token = await getCurrentUserToken();
+      
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Adicionar token se disponível
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const response = await fetch(`${API_BASE_URL}/api/interact`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify({
           text: text.trim(),
           userId: user?.uid || 'anonymous'
