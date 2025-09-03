@@ -16,7 +16,13 @@ load_dotenv()
 
 # Configuração do Flask
 app = Flask(__name__)
-CORS(app)  # Permite requisições do frontend hospedado na Vercel
+
+# Configuração do CORS para permitir requisições da Vercel
+CORS(app, 
+     origins=['https://*.vercel.app', 'https://*.vercel.com', 'http://localhost:5173', 'http://localhost:3000'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=['Content-Type', 'Authorization'],
+     supports_credentials=True)
 
 # Configuração das chaves de API
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
