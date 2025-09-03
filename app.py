@@ -371,10 +371,10 @@ def health_check():
         }
     })
 
+# Inicializa os serviços sempre (tanto para desenvolvimento quanto produção)
+initialize_services()
+
 if __name__ == '__main__':
-    # Inicializa os serviços
-    initialize_services()
-    
-    # Configuração para produção no Render
+    # Configuração para desenvolvimento local
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
