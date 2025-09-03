@@ -97,15 +97,25 @@ def initialize_services():
         # Inicializar Groq AI
         if GROQ_API_KEY:
             try:
-                # Tentar inicialização padrão
-                groq_client = Groq(api_key=GROQ_API_KEY)
-                # Testar se o cliente funciona fazendo uma chamada simples
+                # Inicialização mais robusta do Groq
+                import groq
+                groq_client = groq.Groq(api_key=GROQ_API_KEY)
+                
+                # Testar conectividade com timeout
                 test_response = groq_client.chat.completions.create(
-                    messages=[{"role": "user", "content": "test"}],
+                    messages=[{"role": "user", "content": "Hi"}],
                     model="llama3-8b-8192",
-                    max_tokens=1
+                    max_tokens=5,
+                    timeout=10
                 )
-                print("(OK) Groq AI inicializado e testado com sucesso")
+                if test_response and test_response.choices:
+                    print("(OK) Groq AI inicializado e testado com sucesso")
+                else:
+                    raise Exception("Teste de conectividade falhou")
+                    
+            except ImportError as import_error:
+                print(f"(ERROR) Erro ao importar Groq: {import_error}")
+                groq_client = None
             except Exception as groq_error:
                 print(f"(WARNING) Erro ao inicializar Groq: {groq_error}")
                 print("(INFO) Continuando com simulação de resposta")
