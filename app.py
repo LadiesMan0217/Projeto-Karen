@@ -361,6 +361,7 @@ def clear_chat():
 @app.route('/', methods=['GET'])
 def root():
     """Rota raiz para verificar se o serviço está rodando"""
+    print("[DEBUG] Rota raiz acessada")
     return jsonify({
         'message': 'Karen Backend API está rodando!',
         'version': '1.0.0',
@@ -381,7 +382,14 @@ def health_check():
     })
 
 # Inicializa os serviços sempre (tanto para desenvolvimento quanto produção)
-initialize_services()
+print("[DEBUG] Iniciando aplicação Flask...")
+try:
+    initialize_services()
+    print("[DEBUG] Serviços inicializados com sucesso")
+except Exception as e:
+    print(f"[ERROR] Erro ao inicializar serviços: {e}")
+
+print("[DEBUG] Aplicação Flask configurada e pronta")
 
 if __name__ == '__main__':
     # Configuração para desenvolvimento local
