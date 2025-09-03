@@ -1,6 +1,6 @@
 node_modules
 .env
-*.json
+firebase-credentials*.json
 .venv/
 __pycache__/
 *.pyc
