@@ -3,18 +3,30 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getFirestore, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 
-// Configuração do Firebase (valores reais do projeto)
+// Configuração do Firebase usando variáveis de ambiente
 const firebaseConfig = {
   // IMPORTANTE: Estas são configurações públicas do cliente
   // Não incluem chaves secretas - essas ficam no backend
-  apiKey: "AIzaSyCVUleGAs2B7iTgeDo3SVd-gb7qFP0PKiU",
-  authDomain: "karen-assistente-3f9d8.firebaseapp.com",
-  projectId: "karen-assistente-3f9d8",
-  storageBucket: "karen-assistente-3f9d8.firebasestorage.app",
-  messagingSenderId: "504085882035",
-  appId: "1:504085882035:web:62db34dc36587aa59ffcc6",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCVUleGAs2B7iTgeDo3SVd-gb7qFP0PKiU",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "karen-assistente-3f9d8.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "karen-assistente-3f9d8",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "karen-assistente-3f9d8.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "504085882035",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:504085882035:web:62db34dc36587aa59ffcc6",
   measurementId: "G-WRD6MMMGKY"
 };
+
+// Debug: Log da configuração (apenas em desenvolvimento)
+if (import.meta.env.DEV) {
+  console.log('Firebase Config:', {
+    apiKey: firebaseConfig.apiKey ? '***' : 'MISSING',
+    authDomain: firebaseConfig.authDomain,
+    projectId: firebaseConfig.projectId,
+    storageBucket: firebaseConfig.storageBucket,
+    messagingSenderId: firebaseConfig.messagingSenderId,
+    appId: firebaseConfig.appId ? '***' : 'MISSING'
+  });
+}
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
@@ -94,6 +106,21 @@ export const signOutUser = async () => {
 // Função para observar mudanças no estado de autenticação
 export const onAuthStateChange = (callback) => {
   return onAuthStateChanged(auth, callback);
+};
+
+// Função para obter o token de autenticação do usuário atual
+export const getCurrentUserToken = async () => {
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      return token;
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ Erro ao obter token:', error);
+    return null;
+  }
 };
 
 // Função para escutar mudanças nas tarefas em tempo real
