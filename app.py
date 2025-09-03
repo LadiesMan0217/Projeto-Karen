@@ -358,6 +358,15 @@ def clear_chat():
         print(f"(ERROR) Erro ao limpar histórico: {str(e)}")
         return jsonify({'error': 'Erro ao limpar histórico'}), 500
 
+@app.route('/', methods=['GET'])
+def root():
+    """Rota raiz para verificar se o serviço está rodando"""
+    return jsonify({
+        'message': 'Karen Backend API está rodando!',
+        'version': '1.0.0',
+        'timestamp': datetime.now().isoformat()
+    })
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Endpoint de saúde para o Render"""
