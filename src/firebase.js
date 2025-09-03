@@ -3,16 +3,17 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { getFirestore, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 
-// Configuração do Firebase (substitua pelos seus valores reais)
+// Configuração do Firebase (valores reais do projeto)
 const firebaseConfig = {
   // IMPORTANTE: Estas são configurações públicas do cliente
   // Não incluem chaves secretas - essas ficam no backend
   apiKey: "AIzaSyCVUleGAs2B7iTgeDo3SVd-gb7qFP0PKiU",
   authDomain: "karen-assistente-3f9d8.firebaseapp.com",
   projectId: "karen-assistente-3f9d8",
-  storageBucket: "karen-assistente-3f9d8.appspot.com",
-  messagingSenderId: "111570119904705691171",
-  appId: "1:111570119904705691171:web:abcdef123456"
+  storageBucket: "karen-assistente-3f9d8.firebasestorage.app",
+  messagingSenderId: "504085882035",
+  appId: "1:504085882035:web:62db34dc36587aa59ffcc6",
+  measurementId: "G-WRD6MMMGKY"
 };
 
 // Inicializar Firebase
