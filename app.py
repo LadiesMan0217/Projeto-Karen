@@ -101,10 +101,23 @@ def initialize_services():
                 from groq import Groq
                 print("(INFO) Módulo groq importado com sucesso")
                 
-                print("(INFO) Criando cliente Groq com apenas api_key...")
-                # Inicialização minimalista - apenas com api_key
-                groq_client = Groq(api_key=GROQ_API_KEY)
-                print("(INFO) Cliente Groq criado com sucesso")
+                print("(INFO) Criando cliente Groq com abordagem alternativa...")
+                # Tentar diferentes abordagens de inicialização
+                try:
+                    # Primeira tentativa: apenas api_key
+                    groq_client = Groq(api_key=GROQ_API_KEY)
+                    print("(INFO) Cliente Groq criado com api_key")
+                except Exception as e1:
+                    print(f"(WARNING) Falha na primeira tentativa: {e1}")
+                    try:
+                        # Segunda tentativa: sem parâmetros, definir depois
+                        import os
+                        os.environ['GROQ_API_KEY'] = GROQ_API_KEY
+                        groq_client = Groq()
+                        print("(INFO) Cliente Groq criado via variável de ambiente")
+                    except Exception as e2:
+                        print(f"(ERROR) Falha na segunda tentativa: {e2}")
+                        raise e2
                 
                 print("(INFO) Testando conectividade com Groq...")
                 # Teste simples sem timeout
