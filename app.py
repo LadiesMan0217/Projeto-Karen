@@ -111,7 +111,6 @@ def initialize_services():
                     print(f"(WARNING) Falha na primeira tentativa: {e1}")
                     try:
                         # Segunda tentativa: sem parâmetros, definir depois
-                        import os
                         os.environ['GROQ_API_KEY'] = GROQ_API_KEY
                         groq_client = Groq()
                         print("(INFO) Cliente Groq criado via variável de ambiente")
