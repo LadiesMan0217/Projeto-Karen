@@ -22,28 +22,71 @@ Karen é uma assistente virtual inteligente desenvolvida com arquitetura moderna
 
 ## 🔧 Configuração de Ambiente
 
+Antes de executar o projeto, você precisa configurar as seguintes variáveis de ambiente:
+
 ### Chaves de API Necessárias
 
-#### 1. Groq API
-- Acesse: https://console.groq.com/
-- Crie uma conta e gere uma API Key
-- Adicione ao `.env` como `GROQ_API_KEY`
+1. **Groq API Key**: Para processamento de linguagem natural
+   - Acesse: https://console.groq.com/
+   - Crie uma conta e gere sua API key
+   - Adicione no arquivo `.env` como `GROQ_API_KEY`
 
-#### 2. Hugging Face Token
-- Acesse: https://huggingface.co/settings/tokens
-- Crie um token de acesso
-- Adicione ao `.env` como `HF_TOKEN`
+2. **Hugging Face Token**: Para síntese de voz (Text-to-Speech)
+   - Acesse: https://huggingface.co/settings/tokens
+   - Crie um token de acesso
+   - Adicione no arquivo `.env` como `HF_TOKEN`
 
-#### 3. Firebase
-- Acesse: https://console.firebase.google.com/
-- Crie um novo projeto
-- Ative Authentication (Google Sign-In)
-- Ative Firestore Database
-- Baixe o arquivo `firebase-credentials.json` em:
-  - Project Settings > Service Accounts > Generate new private key
-- Configure as variáveis do frontend no `.env`
+3. **Firebase Credentials**: Para autenticação e banco de dados
+   - Acesse: https://console.firebase.google.com/
+   - Crie um projeto Firebase
+   - Ative Authentication (Google Sign-In) e Firestore Database
+   - Baixe o arquivo de credenciais do Admin SDK
+   - Salve como `firebase-credentials.json` na raiz do projeto
+   - Adicione o caminho no arquivo `.env` como `FIREBASE_CREDENTIALS_PATH`
+
+## 🔐 Segurança e Autenticação
+
+O Projeto Karen implementa um sistema de segurança robusto baseado em Firebase Authentication:
+
+### Backend (Proteção de Endpoints)
+- **Decorator de Segurança**: Todos os endpoints da API são protegidos pelo decorator `@verify_firebase_token`
+- **Verificação de Bearer Token**: Cada requisição deve incluir um token JWT válido no cabeçalho `Authorization: Bearer <token>`
+- **Validação Firebase**: O token é verificado usando `firebase_admin.auth.verify_id_token()`
+- **Identificação do Usuário**: O UID do usuário é extraído do token e usado para operações no Firestore
+
+### Frontend (Envio Seguro)
+- **Função `makeSecureApiCall`**: Centraliza todas as chamadas à API com autenticação automática
+- **Token Automático**: Obtém automaticamente o token de ID do usuário logado via `user.getIdToken()`
+- **Tratamento de Erros**: Detecta tokens expirados e redireciona para login quando necessário
+- **Isolamento de Dados**: Cada usuário acessa apenas seus próprios dados no Firestore
+
+### Endpoints Protegidos
+- `POST /api/interact` - Interação com a Karen
+- `GET /api/chat-history` - Buscar histórico de conversas
+- `DELETE /api/clear-chat` - Limpar histórico de conversas
 
 ### Arquivo .env
+
+Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+```env
+# Chaves de API
+GROQ_API_KEY=sua_groq_api_key_aqui
+HF_TOKEN=seu_hugging_face_token_aqui
+
+# Firebase Admin SDK (Backend)
+FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
+
+# Configurações do Firebase para o Frontend
+VITE_FIREBASE_API_KEY=sua_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=seu-projeto.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=seu-projeto-id
+VITE_FIREBASE_STORAGE_BUCKET=seu-projeto.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef123456
+```
+
+> **⚠️ Importante**: O arquivo `.env` contém informações sensíveis e nunca deve ser commitado no repositório. Sempre use o `.env.example` como referência.
 
 Copie o arquivo `.env.example` para `.env` e preencha com suas credenciais:
 
@@ -327,10 +370,37 @@ Projeto Karen/
 3. **Groq API falha**: Verifique se a chave está correta e tem créditos
 4. **TTS não funciona**: Verifique o token do Hugging Face
 
+### Problemas de Autenticação
+
+5. **Erro 401 - Token de autorização necessário**:
+   - Verifique se o usuário está logado no frontend
+   - Confirme se o Firebase Authentication está configurado corretamente
+   - Verifique se as regras do Firestore permitem acesso autenticado
+
+6. **Erro 401 - Token inválido**:
+   - O token pode ter expirado (tokens Firebase expiram em 1 hora)
+   - Faça logout e login novamente
+   - Verifique se o projeto Firebase no frontend e backend são o mesmo
+
+7. **Usuário não consegue fazer login**:
+   - Verifique se o Google Sign-In está habilitado no Firebase Console
+   - Confirme se o domínio está autorizado nas configurações do Firebase
+   - Para desenvolvimento local, adicione `localhost` aos domínios autorizados
+
+8. **Dados não aparecem após login**:
+   - Verifique se o UID do usuário está sendo usado corretamente
+   - Confirme se as regras do Firestore permitem leitura/escrita para usuários autenticados
+   - Verifique os logs do backend para erros de Firestore
+
 ### Logs
 
 - **Backend**: Verifique os logs no dashboard do Render
 - **Frontend**: Use o console do navegador (F12)
+
+**Logs importantes para autenticação**:
+- Backend: `(ERROR) Erro na verificação do token`
+- Frontend: `Erro na chamada à API` no console do navegador
+- Firebase: Erros de autenticação aparecem no console do Firebase
 
 ## 📞 Suporte
 
