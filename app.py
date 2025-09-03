@@ -138,8 +138,11 @@ def initialize_services():
             print("(WARNING) Groq API Key não encontrada")
             groq_client = None
             
+        return True
+            
     except Exception as e:
         print(f"(ERROR) Erro na inicialização dos serviços: {str(e)}")
+        return False
 
 def read_karen_prompt():
     """Lê o manual de instruções da Karen"""
