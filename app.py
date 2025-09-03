@@ -71,14 +71,28 @@ def initialize_services():
     
     try:
         # Inicializar Firebase Admin SDK
-        if FIREBASE_CREDENTIALS_PATH and os.path.exists(FIREBASE_CREDENTIALS_PATH):
-            if not firebase_admin._apps:
-                cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+        if not firebase_admin._apps:
+            # Tentar usar credenciais via variável de ambiente primeiro (para Render)
+            firebase_creds_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
+            
+            if firebase_creds_json:
+                # Usar credenciais do JSON na variável de ambiente
+                cred_dict = json.loads(firebase_creds_json)
+                cred = credentials.Certificate(cred_dict)
                 firebase_admin.initialize_app(cred)
-            db = firestore.client()
-            print("(OK) Firebase inicializado com sucesso")
-        else:
-            print("(WARNING) Firebase credentials não encontradas")
+                print("✅ Firebase inicializado com credenciais da variável de ambiente")
+            else:
+                # Fallback para arquivo local (desenvolvimento)
+                if FIREBASE_CREDENTIALS_PATH and os.path.exists(FIREBASE_CREDENTIALS_PATH):
+                    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+                    firebase_admin.initialize_app(cred)
+                    print(f"✅ Firebase inicializado com credenciais de: {FIREBASE_CREDENTIALS_PATH}")
+                else:
+                    print("❌ Credenciais Firebase não encontradas. Configure FIREBASE_CREDENTIALS_JSON ou FIREBASE_CREDENTIALS_PATH")
+                    return False
+        
+        db = firestore.client()
+        print("(OK) Firebase inicializado com sucesso")
         
         # Inicializar Groq AI
         if GROQ_API_KEY:
