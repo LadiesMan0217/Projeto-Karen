@@ -94,29 +94,19 @@ def initialize_services():
         db = firestore.client()
         print("(OK) Firebase inicializado com sucesso")
         
-        # Inicializar Groq AI com abordagem simplificada
+        # Inicializar Groq AI com abordagem básica
         if GROQ_API_KEY:
             try:
                 print("(INFO) Tentando importar módulo groq...")
                 from groq import Groq
                 print("(INFO) Módulo groq importado com sucesso")
                 
-                print("(INFO) Criando cliente Groq com abordagem alternativa...")
-                # Tentar diferentes abordagens de inicialização
-                try:
-                    # Primeira tentativa: apenas api_key
-                    groq_client = Groq(api_key=GROQ_API_KEY)
-                    print("(INFO) Cliente Groq criado com api_key")
-                except Exception as e1:
-                    print(f"(WARNING) Falha na primeira tentativa: {e1}")
-                    try:
-                        # Segunda tentativa: sem parâmetros, definir depois
-                        os.environ['GROQ_API_KEY'] = GROQ_API_KEY
-                        groq_client = Groq()
-                        print("(INFO) Cliente Groq criado via variável de ambiente")
-                    except Exception as e2:
-                        print(f"(ERROR) Falha na segunda tentativa: {e2}")
-                        raise e2
+                print("(INFO) Criando cliente Groq básico...")
+                # Definir a chave via variável de ambiente primeiro
+                os.environ['GROQ_API_KEY'] = GROQ_API_KEY
+                # Criar cliente sem parâmetros
+                groq_client = Groq()
+                print("(INFO) Cliente Groq criado com sucesso")
                 
                 print("(INFO) Testando conectividade com Groq...")
                 # Teste simples sem timeout
