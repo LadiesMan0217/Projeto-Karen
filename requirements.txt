@@ -10,7 +10,7 @@ python-dotenv==1.0.0
 firebase-admin==6.2.0
 
 # Groq API
-groq==0.4.2
+groq==0.12.0
 
 # Requests para HTTP e Hugging Face TTS
 requests==2.31.0
